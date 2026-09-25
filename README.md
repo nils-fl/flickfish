@@ -32,6 +32,12 @@ Set `DEBUG_ACCEL = true` in `page/lake/index.js` to show live accelerometer, cro
 
 Game logic lives in `lib/game.js` (pure, no `@zos` imports: a state machine that returns effects such as vibrations), the flick detector in `lib/flick.js`, storage in `lib/store.js`.
 
+## Support
+
+The game is free and ad-free. If you enjoy it, you can buy me a coffee:
+
+[![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-Buy%20me%20a%20coffee-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/nflaschel)
+
 ## License
 
 [MIT](LICENSE) © 2026 Nils Flaschel
