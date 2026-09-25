@@ -18,43 +18,33 @@ Copy these into the Zepp Open Platform console (console.zepp.com → FlickFish �
 
 **App name:** FlickFish
 
-**Profile (short):** Fishing you can feel: flick to cast, wait for the buzz, reel it in with the side button.
+**App introduction** (34/40 characters):
 
-**Details:**
+Fishing you can feel on your wrist
 
-FlickFish is a quick fishing game made for your wrist.
+**App details** (552/600 characters):
 
-- Flick your wrist (or tap) to cast. Light buzzes are nibbles; don't fall for them!
-- A long buzz means a bite: turn or press the side button, or flick, to hook it before it gets away.
-- Reel it in with the side button. When the fish fights back, the watch pulses; stop reeling or the line snaps. You can play it by feel without looking.
-- 12 catches across dawn, day, dusk and night: Trout at sunrise, Pike at dusk, Catfish and Eels after dark, rare Koi and Goldfish, an Old Boot, a Rubber Duck and the legendary Moon Fish.
-- Every catch has a size. Beat your records and fill your aquarium; uncaught species show as silhouettes.
-- The lake changes with the time of day.
+A quick fishing game made for your watch. Flick your wrist to cast. Light buzzes are nibbles, so don't fall for them! A long buzz means a bite: turn or press the side button to hook it. Reel it in with the side button, and stop when the watch pulses or the line snaps. You can play it by feel.
 
-Hand-made pixel art, no account, no internet, no ads.
+12 catches across dawn, day, dusk and night, from Trout and Pike to an Old Boot, a Rubber Duck and the legendary Moon Fish. Beat your size records and fill your aquarium.
 
-Free for everyone. If you enjoy it, you can support me at ko-fi.com/nflaschel.
+Pixel art, no ads, no account, no internet. Free; tips welcome at ko-fi.com/nflaschel
 
 ## Deutsch
 
 **App-Name:** FlickFish
 
-**Profil (kurz):** Angeln zum Fühlen: Handgelenk schnippen, auf das Vibrieren warten, mit der Seitentaste einholen.
+**App-Einführung (App introduction)** (35/40 characters):
 
-**Details:**
+Angeln, das du am Handgelenk spürst
 
-FlickFish ist ein schnelles Angelspiel für dein Handgelenk.
+**App-Details (App details)** (542/600 characters):
 
-- Schnippe mit dem Handgelenk (oder tippe), um auszuwerfen. Leichtes Vibrieren ist nur Knabbern; nicht darauf hereinfallen!
-- Ein langes Vibrieren heißt: Biss! Dreh oder drück die Seitentaste (oder schnippe), um den Fisch anzuschlagen, bevor er entwischt.
-- Hol ihn mit der Seitentaste ein. Wenn der Fisch zieht, pulsiert die Uhr: Hör auf zu kurbeln, sonst reißt die Schnur. Du kannst ganz nach Gefühl spielen, ohne hinzusehen.
-- 12 Fänge von der Morgendämmerung bis in die Nacht: Forellen am Morgen, Hechte in der Dämmerung, Welse und Aale im Dunkeln, seltene Kois und Goldfische, ein alter Stiefel, eine Gummiente und der legendäre Mondfisch.
-- Jeder Fang hat eine Größe. Brich deine Rekorde und füll dein Aquarium; noch nicht gefangene Arten erscheinen als Schatten.
-- Der See verändert sich mit der Tageszeit.
+Ein schnelles Angelspiel für deine Uhr. Schnippe mit dem Handgelenk zum Auswerfen. Leichtes Vibrieren ist nur Knabbern! Langes Vibrieren heißt Biss: Dreh oder drück die Seitentaste zum Anschlagen. Hol ihn mit der Seitentaste ein und hör auf, wenn die Uhr pulsiert, sonst reißt die Schnur.
 
-Handgemachte Pixel-Art, kein Konto, kein Internet, keine Werbung.
+12 Fänge von Morgen bis Nacht: Forelle und Hecht, ein alter Stiefel, eine Gummiente und der legendäre Mondfisch. Brich Größenrekorde und füll dein Aquarium.
 
-Kostenlos für alle. Wenn es dir gefällt, kannst du mich auf ko-fi.com/nflaschel unterstützen.
+Pixel-Art, keine Werbung, kein Konto, kein Internet. Kostenlos; Trinkgeld: ko-fi.com/nflaschel
 
 ## Review notes
 
