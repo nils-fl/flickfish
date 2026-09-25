@@ -152,6 +152,30 @@ test('result screens ignore input briefly, then recast', () => {
   assert.equal(s.state, 'waiting')
 })
 
+test('the crown hooks and reels', () => {
+  const s = castSession(0)
+  G.step(s, G.WAIT_MS[0], false, rngOf(0.5), NOON)
+  assert.equal(s.state, 'bite')
+  // A tiny accidental nudge doesn't hook.
+  G.step(s, G.WAIT_MS[0] + 100, false, rngOf(0.5), NOON, 0.2)
+  assert.equal(s.state, 'bite')
+  assert.deepEqual(G.step(s, G.WAIT_MS[0] + 200, false, rngOf(0.5), NOON, 1), ['hook'])
+  const p0 = s.progress
+  G.step(s, G.WAIT_MS[0] + 300, false, rngOf(0.5), NOON, 2.5)
+  assert.ok(Math.abs(s.progress - (p0 + 2.5 * 8)) < 1e-9)
+})
+
+test('turning the crown during a pull adds tension; during the wait it spooks', () => {
+  const s = hooked()
+  const t = s.nextPull
+  G.step(s, t, false, rngOf(0.5), NOON)
+  G.step(s, t + 10, false, rngOf(0.5), NOON, 1.5)
+  assert.ok(Math.abs(s.tension - 1.5 * s.pullPower) < 1)
+  const w = castSession(0)
+  G.step(w, 500, false, rngOf(0.5), NOON, 1)
+  assert.equal(w.state, 'spooked')
+})
+
 test('recordCatch tracks new species and records', () => {
   const save = G.newSave()
   assert.deepEqual(G.recordCatch(save, 'carp', 40, 1), { isNew: true, isRecord: false })

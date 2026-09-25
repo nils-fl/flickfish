@@ -5,8 +5,8 @@
 A wrist-flick fishing mini game for Zepp OS square watches (Amazfit Active 2 Square, Bip 6, Active, GTS 4, …).
 
 - **Flick your wrist to cast.** Then wait. Light buzzes are nibbles: flick now and you scare the fish off.
-- **Strong buzz = bite!** Flick within the hook window (shorter for rare fish).
-- **Reel:** tap to pull the fish in. When it fights back the watch pulses; tapping then strains the line and it can snap. Reel when it's calm, pause when it buzzes; you can play it by feel.
+- **Strong buzz = bite!** Turn the side button (crown) or flick within the hook window (shorter for rare fish).
+- **Reel:** turn the crown (or tap) to wind the fish in; faster turning reels faster. When it fights back the watch pulses, and reeling then strains the line until it snaps. Reel when it's calm, stop when it buzzes; you can play it by feel.
 - **12 catches** across dawn, day, dusk and night, including an Old Boot, a Rubber Duck and the legendary Moon Fish (night only, ~1% of casts).
 - **Aquarium** (swipe up): every species you've caught, how many, and your biggest. Uncaught ones are silhouettes.
 - The lake follows the time of day. Tapping the screen works as a flick too.
@@ -25,6 +25,6 @@ zeus build             # .zab in dist/
 
 Run `zeus preview` in a real terminal; its device picker needs arrow keys.
 
-Set `DEBUG_ACCEL = true` in `page/lake/index.js` to show live accelerometer values while tuning `FLICK_RATIO` in `lib/flick.js`.
+Set `DEBUG_ACCEL = true` in `page/lake/index.js` to show live accelerometer and crown values while tuning `FLICK_RATIO` in `lib/flick.js` and `CROWN_DEG_PER_UNIT` in the page.
 
 Game logic lives in `lib/game.js` (pure, no `@zos` imports: a state machine that returns effects such as vibrations), the flick detector in `lib/flick.js`, storage in `lib/store.js`.

@@ -1,18 +1,20 @@
 import { createWidget, widget, prop, event, align, text_style, setStatusBarVisible } from '@zos/ui'
-import { onGesture, offGesture, GESTURE_UP } from '@zos/interaction'
+import { onGesture, offGesture, GESTURE_UP, onDigitalCrown, offDigitalCrown } from '@zos/interaction'
 import { push } from '@zos/router'
 import { setPageBrightTime, pauseDropWristScreenOff } from '@zos/display'
 import {
   Accelerometer, Vibrator, FREQ_MODE_NORMAL,
-  VIBRATOR_SCENE_SHORT_LIGHT, VIBRATOR_SCENE_SHORT_MIDDLE, VIBRATOR_SCENE_SHORT_STRONG
+  VIBRATOR_SCENE_SHORT_MIDDLE, VIBRATOR_SCENE_SHORT_STRONG, VIBRATOR_SCENE_DURATION, VIBRATOR_SCENE_NOTIFICATION
 } from '@zos/sensor'
 import { px } from '@zos/utils'
 import * as G from '../../lib/game.js'
 import { createFlick, feed } from '../../lib/flick.js'
 import { load, save } from '../../lib/store.js'
 
-// Shows live accelerometer magnitude/baseline at the bottom, for tuning FLICK_RATIO.
+// Shows live accelerometer magnitude/baseline and crown degrees at the bottom, for tuning.
 const DEBUG_ACCEL = false
+// Degrees of crown rotation that equal one reel tap. Faster turns report bigger angles.
+const CROWN_DEG_PER_UNIT = 30
 
 const W = 390
 const LOOP_MS = 80
@@ -22,13 +24,14 @@ const BOBBER = { w: 28, h: 28 }
 const LINE_DOTS = 10
 const BAR = { x: 60, w: 270 }
 
+// The SHORT scenes are tiny 20 ms taps; the bite uses a 600 ms buzz so it can't be missed.
 const VIBRATION = {
-  cast: VIBRATOR_SCENE_SHORT_LIGHT,
-  nibble: VIBRATOR_SCENE_SHORT_LIGHT,
-  bite: VIBRATOR_SCENE_SHORT_STRONG,
-  hook: VIBRATOR_SCENE_SHORT_MIDDLE,
-  pull: VIBRATOR_SCENE_SHORT_MIDDLE,
-  catch: VIBRATOR_SCENE_SHORT_STRONG,
+  cast: VIBRATOR_SCENE_SHORT_MIDDLE,
+  nibble: VIBRATOR_SCENE_SHORT_STRONG,
+  bite: VIBRATOR_SCENE_DURATION,
+  hook: VIBRATOR_SCENE_SHORT_STRONG,
+  pull: VIBRATOR_SCENE_SHORT_STRONG,
+  catch: VIBRATOR_SCENE_NOTIFICATION,
   fail: VIBRATOR_SCENE_SHORT_MIDDLE
 }
 
@@ -60,6 +63,8 @@ Page({
     this.session = G.newSession()
     this.flick = createFlick()
     this.act = false
+    this.crown = 0
+    this.crownTotal = 0
     this.cache = new Map()
     this.spot = { x: 180, y: 240 }
     this.card = null
@@ -115,6 +120,14 @@ Page({
     this.accel.start()
     this.vibrator = new Vibrator()
 
+    // Side button: turn it to hook and reel in (either direction).
+    onDigitalCrown({
+      callback: (key, degree) => {
+        this.crown += Math.abs(degree) / CROWN_DEG_PER_UNIT
+        this.crownTotal += Math.abs(degree)
+      }
+    })
+
     onGesture({
       callback: (e) => {
         if (e === GESTURE_UP && this.canLeave()) {
@@ -139,22 +152,18 @@ Page({
     const hour = new Date(now).getHours()
     // Flicks hook and cast; while reeling only taps count, so wrist movement doesn't add tension.
     const act = this.act || (this.flicked && this.session.state !== 'reeling')
+    const reel = this.crown
     this.act = false
     this.flicked = false
+    this.crown = 0
 
-    const fx = G.step(this.session, now, act, Math.random, hour)
+    const fx = G.step(this.session, now, act, Math.random, hour, reel)
     for (const f of fx) this.effect(f, now)
     this.render(now, hour)
   },
 
   effect(f, now) {
-    const mode = VIBRATION[f]
-    if (mode !== undefined) {
-      try {
-        this.vibrator.stop()
-        this.vibrator.start({ mode })
-      } catch (e) {}
-    }
+    if (f in VIBRATION) this.buzz(VIBRATION[f])
     if (f === 'cast') {
       pauseDropWristScreenOff({ duration: 60 * 1000 })
       this.save.casts += 1
@@ -166,6 +175,17 @@ Page({
       const s = this.session
       this.card = { fish: s.fish, size: s.size, ...G.recordCatch(this.save, s.fish, s.size, now) }
       save(this.save)
+    }
+  },
+
+  buzz(mode) {
+    // Same call pattern as the SDK example: setMode(), then start(). If a scene
+    // constant is missing on this firmware, still vibrate with the default scene.
+    try {
+      if (mode !== undefined) this.vibrator.setMode(mode)
+      this.vibrator.start()
+    } catch (e) {
+      this.vibeError = String(e)
     }
   },
 
@@ -200,10 +220,10 @@ Page({
     let title = ''
     let sub = ''
     if (st === 'idle') [title, sub] = ['Flick to cast', TOD_HINT[tod]]
-    else if (st === 'waiting') [title, sub] = ['Wait for the bite…', "Don't flick on nibbles!"]
-    else if (st === 'bite') [title, sub] = ['BITE! Flick!', '']
+    else if (st === 'waiting') [title, sub] = ['Wait for the bite…', "Don't react to nibbles!"]
+    else if (st === 'bite') [title, sub] = ['BITE!', 'Turn the crown or flick!']
     else if (st === 'reeling')
-      [title, sub] = G.isPulling(s, now) ? ["It's pulling!", 'Hold on… wait for calm'] : ['Reel it in!', 'Tap to reel · pause when it buzzes']
+      [title, sub] = G.isPulling(s, now) ? ["It's pulling!", 'Stop reeling… wait for calm'] : ['Reel it in!', 'Turn the crown · stop when it pulls']
     else if (RESULT_TEXT[st]) [title, sub] = RESULT_TEXT[st]
     this.set(this.title, 'TEXT', title)
     this.set(this.sub, 'TEXT', sub)
@@ -270,7 +290,10 @@ Page({
     this.show(this.hint, this.canLeave() && !card)
 
     this.show(this.debug, DEBUG_ACCEL)
-    if (DEBUG_ACCEL) this.set(this.debug, 'TEXT', `mag ${Math.round(this.flick.mag)} base ${Math.round(this.flick.base)}`)
+    if (DEBUG_ACCEL) {
+      const vibe = this.vibeError ? ` · vib err: ${this.vibeError}` : ''
+      this.set(this.debug, 'TEXT', `mag ${Math.round(this.flick.mag)} base ${Math.round(this.flick.base)} crown ${Math.round(this.crownTotal)}°${vibe}`)
+    }
   },
 
   onDestroy() {
@@ -281,6 +304,7 @@ Page({
       this.vibrator.stop()
     } catch (e) {}
     offGesture()
+    offDigitalCrown()
     save(this.save)
   }
 })
