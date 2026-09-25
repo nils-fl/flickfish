@@ -8,7 +8,7 @@
     "test": "node --test test/*.test.mjs",
     "sprites": "node tools/gen-sprites.mjs"
   },
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@zeppos/device-types": "^3.0.0",
     "pngjs": "^7.0.0"

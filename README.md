@@ -31,3 +31,7 @@ Run `zeus preview` in a real terminal; its device picker needs arrow keys.
 Set `DEBUG_ACCEL = true` in `page/lake/index.js` to show live accelerometer, crown and button-press values while tuning `FLICK_RATIO` in `lib/flick.js` and `CROWN_DEG_PER_UNIT` in the page.
 
 Game logic lives in `lib/game.js` (pure, no `@zos` imports: a state machine that returns effects such as vibrations), the flick detector in `lib/flick.js`, storage in `lib/store.js`.
+
+## License
+
+[MIT](LICENSE) © 2026 Nils Flaschel
