@@ -46,6 +46,34 @@ Ein schnelles Angelspiel für deine Uhr. Schnippe mit dem Handgelenk zum Auswerf
 
 Pixel-Art, keine Werbung, kein Konto, kein Internet. Kostenlos; Trinkgeld: ko-fi.com/nflaschel
 
+## Features descriptions
+
+Feature list:
+
+- Flick your wrist to cast
+- Feel nibbles and bites as vibrations
+- Hook and reel with the side button
+- 12 catches, from Trout to the Moon Fish
+- Fish change with the time of day
+- Size records and a pixel aquarium
+
+Screenshot captions (same order as `store/screenshots/`):
+
+1. Flick your wrist to cast
+2. A long buzz means a bite: hook it fast!
+3. Reel it in, but stop when it pulls
+4. Every catch has a size: beat your records
+5. Fill your aquarium with all 12 catches
+
+Deutsch:
+
+- Mit dem Handgelenk auswerfen
+- Knabbern und Bisse per Vibration spüren
+- Anschlagen und Einholen mit der Seitentaste
+- 12 Fänge bis zum Mondfisch
+- Fische je nach Tageszeit
+- Größenrekorde und Pixel-Aquarium
+
 ## Review notes
 
 FlickFish is a free offline fishing game.
