@@ -59,7 +59,7 @@ FlickFish does not collect, transmit or share any personal data.
 - **Game progress:** your catches, records and aquarium are stored locally on the watch in the app's own storage. They are deleted when you uninstall the app.
 - FlickFish has no account, no network access, no analytics, no advertising and no third-party SDKs.
 
-Contact: [your contact email]
+Contact: n.flaschel@gmail.com
 
 ### Datenschutzerklärung
 
@@ -69,4 +69,4 @@ FlickFish erhebt, überträgt oder teilt keine personenbezogenen Daten.
 - **Spielstand:** Deine Fänge, Rekorde und dein Aquarium werden lokal im eigenen Speicher der App auf der Uhr gespeichert und beim Deinstallieren gelöscht.
 - FlickFish hat kein Konto, keinen Netzwerkzugriff, keine Analyse, keine Werbung und keine SDKs von Drittanbietern.
 
-Kontakt: [deine Kontakt-E-Mail]
+Kontakt: n.flaschel@gmail.com
