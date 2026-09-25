@@ -201,7 +201,7 @@ function iconFish() {
   count++
 }
 
-// README banner: pixel title over a row of every species on the day lake.
+// README banner: app icon + pixel title over a row of every species on the day lake.
 {
   const FONT = {
     F: ['11111', '1....', '1....', '1111.', '1....', '1....', '1....'],
@@ -222,7 +222,20 @@ function iconFish() {
   }
   const title = 'FLICKFISH'
   const T = 2
-  let x0 = Math.floor((W - (title.length * 6 * T - T)) / 2)
+  // Icon badge (fish on a pixel pond disc) to the left of the title, centered as a group.
+  const IW = 20
+  const GAP = 5
+  const titleW = title.length * 6 * T - T
+  const bx = Math.floor((W - (IW + GAP + titleW)) / 2)
+  const fishIcon = iconFish()
+  for (let y = 0; y < IW; y++) {
+    for (let x = 0; x < IW; x++) {
+      const r = Math.hypot(x - 9.5, y - 9.5)
+      if (r > 10) continue
+      put(g, bx + x, 1 + y, fishIcon[y][x] || rgb(r > 8.8 ? '#154a70' : '#1f6aa0'))
+    }
+  }
+  let x0 = bx + IW + GAP
   for (const ch of title) {
     FONT[ch].forEach((row, y) =>
       [...row].forEach((c, x) => {
