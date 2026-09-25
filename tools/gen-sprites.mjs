@@ -151,12 +151,53 @@ out('ui/bobber_dip.png', fromArt(BOBBER_DIP), 4)
 out('ui/ripple.png', fromArt(RIPPLE), 4)
 out('ui/bang.png', fromArt(BANG), 4)
 
-// App icon: koi on a round pond.
+// App icon: a bold, classic fish silhouette (forked tail, fin, eye) on a round pond,
+// drawn procedurally so it stays readable at small icon sizes.
+function iconFish() {
+  const N = 20
+  const cy = 10
+  // Fill shape: oval body, filled forked tail, dorsal fin. The outline is drawn *around* it.
+  const shape = (x, y) => {
+    const body = ((x - 8) / 5.6) ** 2 + ((y - cy) / 3.9) ** 2 <= 1
+    const d = Math.abs(y - cy)
+    const tail = x >= 13 && x <= 16 && d <= (x - 12.2) * 1.15 && !(x >= 15 && d < (x - 14.3) * 1.3)
+    const fin = y >= 5 && y <= 6 && x >= 6 && x <= 10 && x - 6 >= 2 * (6 - y)
+    return body || tail || fin
+  }
+  const c = {
+    outline: rgb('#6b260b'), body: rgb('#ff8f1f'), belly: rgb('#ffcf5c'), fin: rgb('#e8650c'),
+    eye: rgb('#ffffff'), pupil: rgb('#1a1a1a'), bubble: rgb('#cfefff')
+  }
+  const g = grid(N, N)
+  const inside = (x, y) => x >= 0 && y >= 0 && x < N && y < N && shape(x, y)
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      if (inside(x, y)) {
+        if (x >= 13 || y <= 6) g[y][x] = c.fin
+        else if (y >= cy + 1) g[y][x] = c.belly
+        else g[y][x] = c.body
+      } else if (inside(x - 1, y) || inside(x + 1, y) || inside(x, y - 1) || inside(x, y + 1)) {
+        g[y][x] = c.outline
+      }
+    }
+  }
+  // Gill line, pectoral fin, eye, bubbles in front of the mouth.
+  for (const y of [8, 9, 10, 11]) g[y][6] = c.fin
+  for (const [x, y] of [[9, 11], [9, 12], [10, 12]]) g[y][x] = c.fin
+  g[8][4] = c.eye
+  g[8][5] = c.eye
+  g[9][4] = c.pupil
+  g[9][5] = c.eye
+  for (const [x, y] of [[2, 7], [3, 5], [3, 4], [4, 3]]) g[y][x] = c.bubble
+  return g
+}
 {
-  const g = grid(20, 20)
-  stamp(g, FISH.koi, 2, 5)
-  const pond = (x, y, w) => ((x - w / 2 + 0.5) ** 2 + (y - w / 2 + 0.5) ** 2 <= (w / 2) ** 2 ? rgb('#1c5883') : null)
-  writePng(path.join(OUT, 'icon.png'), g, 12, pond)
+  const pond = (x, y, w) => {
+    const r = Math.hypot(x - w / 2 + 0.5, y - w / 2 + 0.5)
+    if (r > w / 2) return null
+    return r > w / 2 - 10 ? rgb('#154a70') : rgb('#1f6aa0')
+  }
+  writePng(path.join(OUT, 'icon.png'), iconFish(), 12, pond)
   count++
 }
 
