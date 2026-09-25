@@ -1,0 +1,16 @@
+{
+  "name": "flickfish",
+  "version": "1.0.0",
+  "description": "Wrist-flick fishing mini game for Zepp OS square watches",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "sprites": "node tools/gen-sprites.mjs"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@zeppos/device-types": "^3.0.0",
+    "pngjs": "^7.0.0"
+  }
+}
