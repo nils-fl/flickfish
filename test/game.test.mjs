@@ -156,10 +156,12 @@ test('the crown hooks and reels', () => {
   const s = castSession(0)
   G.step(s, G.WAIT_MS[0], false, rngOf(0.5), NOON)
   assert.equal(s.state, 'bite')
-  // A tiny accidental nudge doesn't hook.
+  // A tiny accidental nudge doesn't hook, but slow small turns add up.
   G.step(s, G.WAIT_MS[0] + 100, false, rngOf(0.5), NOON, 0.2)
   assert.equal(s.state, 'bite')
-  assert.deepEqual(G.step(s, G.WAIT_MS[0] + 200, false, rngOf(0.5), NOON, 1), ['hook'])
+  G.step(s, G.WAIT_MS[0] + 150, false, rngOf(0.5), NOON, 0.2)
+  assert.equal(s.state, 'bite')
+  assert.deepEqual(G.step(s, G.WAIT_MS[0] + 200, false, rngOf(0.5), NOON, 0.2), ['hook'])
   const p0 = s.progress
   G.step(s, G.WAIT_MS[0] + 300, false, rngOf(0.5), NOON, 2.5)
   assert.ok(Math.abs(s.progress - (p0 + 2.5 * 8)) < 1e-9)

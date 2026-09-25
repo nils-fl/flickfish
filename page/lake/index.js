@@ -1,5 +1,7 @@
 import { createWidget, widget, prop, event, align, text_style, setStatusBarVisible } from '@zos/ui'
-import { onGesture, offGesture, GESTURE_UP, onDigitalCrown, offDigitalCrown } from '@zos/interaction'
+import {
+  onGesture, offGesture, GESTURE_UP, onDigitalCrown, offDigitalCrown, onKey, offKey, KEY_EVENT_CLICK
+} from '@zos/interaction'
 import { push } from '@zos/router'
 import { setPageBrightTime, pauseDropWristScreenOff } from '@zos/display'
 import {
@@ -65,6 +67,7 @@ Page({
     this.act = false
     this.crown = 0
     this.crownTotal = 0
+    this.presses = 0
     this.cache = new Map()
     this.spot = { x: 180, y: 240 }
     this.card = null
@@ -125,6 +128,20 @@ Page({
       callback: (key, degree) => {
         this.crown += Math.abs(degree) / CROWN_DEG_PER_UNIT
         this.crownTotal += Math.abs(degree)
+      }
+    })
+
+    // Button presses hook and reel too. Only swallowed while a fish is on the line,
+    // so the buttons still leave the app the rest of the time.
+    onKey({
+      callback: (key, keyEvent) => {
+        const st = this.session.state
+        if (st !== 'bite' && st !== 'reeling') return false
+        if (keyEvent === KEY_EVENT_CLICK) {
+          this.act = true
+          this.presses += 1
+        }
+        return true
       }
     })
 
@@ -221,9 +238,9 @@ Page({
     let sub = ''
     if (st === 'idle') [title, sub] = ['Flick to cast', TOD_HINT[tod]]
     else if (st === 'waiting') [title, sub] = ['Wait for the bite…', "Don't react to nibbles!"]
-    else if (st === 'bite') [title, sub] = ['BITE!', 'Turn the crown or flick!']
+    else if (st === 'bite') [title, sub] = ['BITE!', 'Turn/press button or flick!']
     else if (st === 'reeling')
-      [title, sub] = G.isPulling(s, now) ? ["It's pulling!", 'Stop reeling… wait for calm'] : ['Reel it in!', 'Turn the crown · stop when it pulls']
+      [title, sub] = G.isPulling(s, now) ? ["It's pulling!", 'Stop reeling… wait for calm'] : ['Reel it in!', 'Turn/press button · stop on pulls']
     else if (RESULT_TEXT[st]) [title, sub] = RESULT_TEXT[st]
     this.set(this.title, 'TEXT', title)
     this.set(this.sub, 'TEXT', sub)
@@ -292,7 +309,8 @@ Page({
     this.show(this.debug, DEBUG_ACCEL)
     if (DEBUG_ACCEL) {
       const vibe = this.vibeError ? ` · vib err: ${this.vibeError}` : ''
-      this.set(this.debug, 'TEXT', `mag ${Math.round(this.flick.mag)} base ${Math.round(this.flick.base)} crown ${Math.round(this.crownTotal)}°${vibe}`)
+      const input = `crown ${Math.round(this.crownTotal)}° · presses ${this.presses}`
+      this.set(this.debug, 'TEXT', `mag ${Math.round(this.flick.mag)} base ${Math.round(this.flick.base)} · ${input}${vibe}`)
     }
   },
 
@@ -305,6 +323,7 @@ Page({
     } catch (e) {}
     offGesture()
     offDigitalCrown()
+    offKey()
     save(this.save)
   }
 })
