@@ -21,7 +21,10 @@ npm run sprites        # regenerate PNGs (and docs/banner.png) from tools/sprite
 zeus dev               # run in the simulator
 zeus preview           # QR code to install on the watch (Zepp app → Developer Mode → Scan)
 zeus build             # .zab in dist/
+python3 tools/store_screenshots.py   # 360x360 store screenshots in store/screenshots/
 ```
+
+Store listing texts, privacy statement and asset checklist: `store/listing.md`.
 
 Run `zeus preview` in a real terminal; its device picker needs arrow keys.
 

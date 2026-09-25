@@ -85,7 +85,8 @@ function scene(p) {
   disc(g, ox, oy, p.orbR, rgb(p.orb))
   if (p.stars) disc(g, ox + 2, oy - 1, p.orbR - 1, sky[0]) // crescent moon
   if (p.clouds) {
-    for (const [cx, cy, w] of [[12, 6, 9], [30, 11, 7], [57, 15, 6]]) {
+    // Clouds sit at the edges and low in the sky, away from the centered texts.
+    for (const [cx, cy, w] of [[1, 17, 8], [55, 13, 9], [24, 25, 6]]) {
       for (let x = 0; x < w; x++) {
         put(g, cx + x, cy, rgb(p.clouds))
         if (x > 1 && x < w - 1) put(g, cx + x, cy - 1, rgb(p.clouds))

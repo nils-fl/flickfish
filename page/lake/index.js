@@ -3,7 +3,7 @@ import {
   onGesture, offGesture, GESTURE_UP, onDigitalCrown, offDigitalCrown, onKey, offKey, KEY_EVENT_CLICK
 } from '@zos/interaction'
 import { push } from '@zos/router'
-import { setPageBrightTime, pauseDropWristScreenOff } from '@zos/display'
+import { setPageBrightTime, pauseDropWristScreenOff, resetDropWristScreenOff } from '@zos/display'
 import {
   Accelerometer, Vibrator, FREQ_MODE_NORMAL,
   VIBRATOR_SCENE_SHORT_MIDDLE, VIBRATOR_SCENE_SHORT_STRONG, VIBRATOR_SCENE_DURATION, VIBRATOR_SCENE_NOTIFICATION
@@ -25,6 +25,7 @@ const REEL_END = { x: 262, y: 300 } // where a reeled-in fish reaches the rod
 const BOBBER = { w: 28, h: 28 }
 const LINE_DOTS = 10
 const BAR = { x: 60, w: 270 }
+const TEXT_SHADOW = 0x0a1422
 
 // The SHORT scenes are tiny 20 ms taps; the bite uses a 600 ms buzz so it can't be missed.
 const VIBRATION = {
@@ -75,7 +76,7 @@ Page({
 
   build() {
     setStatusBarVisible(false)
-    setPageBrightTime({ brightTime: 60 * 1000 })
+    this.keepAwake(Date.now())
     const onTap = () => {
       this.act = true
     }
@@ -84,9 +85,17 @@ Page({
     this.bg = createWidget(widget.IMG, { x: 0, y: 0, w: px(W), h: px(450), src: `scene/${this.tod}.png` })
     this.bg.addEventListener(event.CLICK_UP, onTap)
 
-    this.clock = text({ y: px(10), h: px(28), color: 0xffffff, text_size: px(22) })
-    this.title = text({ y: px(44), h: px(36), color: 0xffffff, text_size: px(30) })
-    this.sub = text({ y: px(80), h: px(26), color: 0xe0e0e0, text_size: px(18) })
+    // Texts over the sky get a dark drop shadow so they stay readable on clouds, stars and sun.
+    this.shadows = new Map()
+    const shadowed = (opts) => {
+      const shadow = text({ ...opts, x: px(2), y: opts.y + px(2), color: TEXT_SHADOW })
+      const main = text(opts)
+      this.shadows.set(main, shadow)
+      return main
+    }
+    this.clock = shadowed({ y: px(10), h: px(28), color: 0xffffff, text_size: px(22) })
+    this.title = shadowed({ y: px(44), h: px(36), color: 0xffffff, text_size: px(30) })
+    this.sub = shadowed({ y: px(80), h: px(26), color: 0xe0e0e0, text_size: px(18) })
 
     this.reelBg = createWidget(widget.FILL_RECT, { x: px(BAR.x), y: px(114), w: px(BAR.w), h: px(12), radius: px(6), color: 0x1a1a2e })
     this.reelFg = createWidget(widget.FILL_RECT, { x: px(BAR.x), y: px(114), w: px(12), h: px(12), radius: px(6), color: 0x66bb6a })
@@ -101,7 +110,7 @@ Page({
     this.bobber.addEventListener(event.CLICK_UP, onTap)
     this.bang = createWidget(widget.IMG, { x: 0, y: 0, src: 'ui/bang.png' })
 
-    this.hint = text({ y: px(414), h: px(24), color: 0xcfd8dc, text_size: px(16), text: 'Swipe up for your aquarium' })
+    this.hint = shadowed({ y: px(414), h: px(24), color: 0xcfd8dc, text_size: px(16), text: 'Swipe up for your aquarium' })
     this.debug = text({ y: px(390), h: px(22), color: 0xffff00, text_size: px(16) })
 
     // Catch card, created last so it draws on top.
@@ -131,12 +140,12 @@ Page({
       }
     })
 
-    // Button presses hook and reel too. Only swallowed while a fish is on the line,
-    // so the buttons still leave the app the rest of the time.
+    // Button presses hook and reel too (and scare the fish if pressed while waiting).
+    // Only swallowed while a line is out, so the buttons still leave the app otherwise.
     onKey({
       callback: (key, keyEvent) => {
         const st = this.session.state
-        if (st !== 'bite' && st !== 'reeling') return false
+        if (st !== 'waiting' && st !== 'bite' && st !== 'reeling') return false
         if (keyEvent === KEY_EVENT_CLICK) {
           this.act = true
           this.presses += 1
@@ -167,8 +176,11 @@ Page({
   frame() {
     const now = Date.now()
     const hour = new Date(now).getHours()
-    // Flicks hook and cast; while reeling only taps count, so wrist movement doesn't add tension.
-    const act = this.act || (this.flicked && this.session.state !== 'reeling')
+    // Flicks hook and cast. Ignored while reeling (wrist movement shouldn't add tension) and
+    // right after a cast, so the arm's return swing doesn't count as an early flick.
+    const s = this.session
+    const castSettling = s.state === 'waiting' && now - s.since < G.CAST_GUARD_MS
+    const act = this.act || (this.flicked && s.state !== 'reeling' && !castSettling)
     const reel = this.crown
     this.act = false
     this.flicked = false
@@ -179,10 +191,19 @@ Page({
     this.render(now, hour)
   },
 
+  // Playing with flicks and the side button never touches the screen, so the screen-on
+  // timer has to be renewed by the game itself (at most every few seconds).
+  keepAwake(now) {
+    if (now - (this.awakeAt || 0) < 5000) return
+    this.awakeAt = now
+    setPageBrightTime({ brightTime: 60 * 1000 })
+    pauseDropWristScreenOff({ duration: 60 * 1000 })
+  },
+
   effect(f, now) {
+    this.keepAwake(now)
     if (f in VIBRATION) this.buzz(VIBRATION[f])
     if (f === 'cast') {
-      pauseDropWristScreenOff({ duration: 60 * 1000 })
       this.save.casts += 1
       this.spot = { x: 120 + Math.random() * 120, y: 215 + Math.random() * 50 }
       this.card = null
@@ -214,6 +235,8 @@ Page({
     k[key] = v
     this.cache.set(w, k)
     w.setProperty(prop[key], value)
+    const shadow = this.shadows.get(w)
+    if (shadow && (key === 'TEXT' || key === 'VISIBLE')) shadow.setProperty(prop[key], value)
   },
 
   show(w, visible) {
@@ -299,10 +322,11 @@ Page({
     if (card) {
       const cf = G.BY_ID[card.fish]
       this.set(this.cardFish, 'SRC', `fish/${card.fish}.png`)
-      this.set(this.cardName, 'TEXT', cf.legendary ? `★ ${cf.name} ★` : cf.name)
+      this.set(this.cardName, 'TEXT', cf.name)
       this.set(this.cardName, 'COLOR', cf.legendary ? 0xffd54f : 0xffffff)
       this.set(this.cardSize, 'TEXT', G.sizeLabel(cf, card.size))
-      this.set(this.cardBadge, 'TEXT', card.isNew ? 'NEW!' : card.isRecord ? 'Record!' : `Caught ×${this.save.fish[card.fish].count}`)
+      const badge = card.isNew ? (cf.legendary ? 'LEGENDARY!' : 'NEW!') : card.isRecord ? 'Record!' : `Caught ×${this.save.fish[card.fish].count}`
+      this.set(this.cardBadge, 'TEXT', badge)
     }
     this.show(this.hint, this.canLeave() && !card)
 
@@ -324,6 +348,9 @@ Page({
     offGesture()
     offDigitalCrown()
     offKey()
+    try {
+      resetDropWristScreenOff()
+    } catch (e) {}
     save(this.save)
   }
 })

@@ -28,7 +28,7 @@ Page({
 
     const caught = SPECIES.filter((f) => save.fish[f.id]).length
     text(0, 44, W, 36, 'Aquarium', 30, 0xffffff)
-    text(0, 80, W, 26, `${caught}/${SPECIES.length} species · ${save.total} caught · ${save.casts} casts`, 17, 0x90caf9)
+    text(0, 80, W, 26, `${caught}/${SPECIES.length} species · ${save.total} caught`, 17, 0x90caf9)
 
     SPECIES.forEach((f, i) => {
       const x = GRID_X + (i % COLS) * CELL_W
@@ -37,8 +37,8 @@ Page({
       createWidget(widget.FILL_RECT, { x: px(x + 4), y: px(y + 4), w: px(CELL_W - 8), h: px(CELL_H - 8), radius: px(14), color: 0x12304a })
       createWidget(widget.IMG, { x: px(x + (CELL_W - 64) / 2), y: px(y + 12), src: `fish/${f.id}${rec ? '_s' : '_q'}.png` })
       const nameColor = !rec ? 0x546e7a : f.legendary ? 0xffd54f : 0xffffff
-      text(x + 6, y + 56, CELL_W - 12, 24, rec ? f.name : '???', 17, nameColor)
-      text(x + 6, y + 80, CELL_W - 12, 22, rec ? `×${rec.count} · ${sizeLabel(f, rec.best).replace('EU size', 'EU')}` : '', 14, 0x90a4ae)
+      text(x + 4, y + 56, CELL_W - 8, 24, rec ? f.name : '???', 15, nameColor)
+      text(x + 4, y + 80, CELL_W - 8, 22, rec ? `×${rec.count} · ${sizeLabel(f, rec.best).replace('EU size', 'EU').replace(' cm', 'cm')}` : '', 14, 0x90a4ae)
     })
   }
 })

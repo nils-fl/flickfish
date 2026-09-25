@@ -1,7 +1,7 @@
 {
   "configVersion": "v3",
   "app": {
-    "appId": 25034,
+    "appId": 1128637,
     "appName": "FlickFish",
     "appType": "app",
     "version": {
@@ -9,7 +9,7 @@
       "name": "1.0.0"
     },
     "icon": "icon.png",
-    "vender": "zepp",
+    "vender": "Nils Flaschel",
     "description": "Flick your wrist to cast, feel the bite, reel it in, fill your aquarium"
   },
   "permissions": [

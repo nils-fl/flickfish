@@ -44,3 +44,13 @@ test('works in other units (m/s²)', () => {
   for (let i = 0; i < 20; i++) feed(d, at(0, 0, 9.81), i * 40)
   assert.equal(feed(d, at(18, 4, 9.81), 800), true)
 })
+
+test('recovers from a bad first sample instead of flicking forever', () => {
+  const d = createFlick()
+  feed(d, at(0, 0, 50), 0) // sensor not settled yet
+  const hits = []
+  for (let i = 1; i < 100; i++) if (feed(d, at(0, 0, G), i * 40)) hits.push(i)
+  // A few early false flicks at most, then silence once the baseline resyncs.
+  assert.ok(hits.every((i) => i * 40 <= 1100), `late hits ${hits}`)
+  assert.ok(Math.abs(d.base - G) < G * 0.05)
+})
