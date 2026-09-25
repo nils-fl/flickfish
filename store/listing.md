@@ -56,6 +56,24 @@ Handgemachte Pixel-Art, kein Konto, kein Internet, keine Werbung.
 
 Kostenlos für alle. Wenn es dir gefällt, kannst du mich auf ko-fi.com/nflaschel unterstützen.
 
+## Review notes
+
+FlickFish is a free offline fishing game.
+
+**How to test:** Flick the wrist or tap the screen to cast. Light vibrations are nibbles and should be ignored. A long vibration with a "!" means a bite: turn or press the side button (or flick or tap) to hook it. Then turn or press the side button (or tap) to reel it in, and pause while the watch pulses (the fish is pulling), otherwise the line snaps. Swipe up for the aquarium. Different fish appear at dawn, day, dusk and night.
+
+**Permissions:**
+- Accelerometer (device:os.accelerometer): used only while the game is open, to detect the wrist flick. Readings are processed instantly and never stored or sent.
+- Local storage: saves catches and records on the watch.
+
+The game keeps the screen on while playing, because it can be played without touching the screen, and restores the normal screen-off behavior on exit.
+
+**Data:** No network access, no account, no analytics, no third-party SDKs. Nothing leaves the watch.
+
+**Payments:** None. The app is completely free with no locked features. The store description only mentions an optional external tip link (ko-fi.com/nflaschel); nothing in the app refers to it.
+
+Supported devices: square-screen Zepp OS 3+ watches (developed and tested on Amazfit Active 2 Square).
+
 ## Privacy statement
 
 FlickFish does not collect, transmit or share any personal data.
