@@ -217,4 +217,8 @@ if (process.argv.includes('--preview')) {
   console.log(`preview: ${file}`)
 }
 
+// Store upload copy of the icon.
+fs.mkdirSync(path.join(ROOT, 'store'), { recursive: true })
+fs.copyFileSync(path.join(OUT, 'icon.png'), path.join(ROOT, 'store/icon.png'))
+
 console.log(`wrote ${count} images`)

@@ -7,7 +7,7 @@ Copy these into the Zepp Open Platform console (console.zepp.com → FlickFish �
 | appId | 1128637 |
 | Package | `zeus build` → `dist/1128637-FlickFish-1.0.0-*.zab` |
 | Category | Games |
-| Icon | `assets/default.s/icon.png` (240×240, round, transparent outside) |
+| Icon | `store/icon.png` (240×240, round, transparent outside; same as `assets/default.s/icon.png`) |
 | Screenshots | `store/screenshots/1-cast.png` … `5-aquarium.png` (360×360, transparent) |
 | Data permissions | Accelerometer (`device:os.accelerometer`), used on the watch only |
 | Third-party SDKs | None |
