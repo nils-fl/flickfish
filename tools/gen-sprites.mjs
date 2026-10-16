@@ -1,21 +1,21 @@
-// Renders the pixel art in tools/sprites/art.mjs into PNGs under assets/default.s/,
-// plus the procedural lake backgrounds, the app icon and docs/banner.png.
+// Renders the pixel art in tools/sprites/art.mjs into PNGs under assets/default.s/ (square)
+// and assets/default.r/ (round), plus the procedural lake backgrounds (one set per screen
+// shape, laid out by lib/layout.js), the app icon and docs/banner.png.
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { PNG } from 'pngjs'
 import { PALETTE, FISH, BOBBER, BOBBER_DIP, RIPPLE, BANG, SCENES } from './sprites/art.mjs'
+import { SQUARE, ROUND } from '../lib/layout.js'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = path.join(ROOT, 'assets/default.s')
+const OUT_ROUND = path.join(ROOT, 'assets/default.r')
 const SILHOUETTE = '#2a3a4a'
 
-// Lake scene grid: 65x75 cells at 6px = 390x450.
-export const SCENE_W = 65
-export const SCENE_H = 75
+// Lake scene grid: 6px cells, 65x75 = 390x450 square, 80x80 = 480x480 round.
 export const SCENE_SCALE = 6
-export const HORIZON = 30
-export const ROD_TIP = [46, 52] // cell where the fishing line starts
+const { w: SCENE_W, h: SCENE_H } = SQUARE.scene
 
 const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16))
 const grid = (w, h, fill = null) => Array.from({ length: h }, () => Array(w).fill(fill))
@@ -65,7 +65,9 @@ function disc(g, cx, cy, r, c) {
   for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y <= r * r + r) put(g, cx + x, cy + y, c)
 }
 
-function scene(p) {
+function scene(p, D = SQUARE.scene) {
+  const { w: SCENE_W, h: SCENE_H, horizon: HORIZON } = D
+  const [sx, sy] = D.skyShift
   const g = grid(SCENE_W, SCENE_H)
   const sky = p.sky.map(rgb)
   const water = p.water.map(rgb)
@@ -81,12 +83,12 @@ function scene(p) {
     for (let y = 0; y < HORIZON - 6; y++)
       for (let x = 0; x < SCENE_W; x++) if (hash(x, y) > 0.975) g[y][x] = rgb(hash(y, x) > 0.5 ? '#ffffff' : '#8fa3d9')
   }
-  const [ox, oy] = p.orbAt
+  const [ox, oy] = [p.orbAt[0] + sx, p.orbAt[1] + sy]
   disc(g, ox, oy, p.orbR, rgb(p.orb))
   if (p.stars) disc(g, ox + 2, oy - 1, p.orbR - 1, sky[0]) // crescent moon
   if (p.clouds) {
     // Clouds sit at the edges and low in the sky, away from the centered texts.
-    for (const [cx, cy, w] of [[1, 17, 8], [55, 13, 9], [24, 25, 6]]) {
+    for (const [cx, cy, w] of [[1 + sx, 17 + sy, 8], [55 + sx, 13 + sy, 9], [24 + sx, 25 + sy, 6]]) {
       for (let x = 0; x < w; x++) {
         put(g, cx + x, cy, rgb(p.clouds))
         if (x > 1 && x < w - 1) put(g, cx + x, cy - 1, rgb(p.clouds))
@@ -109,7 +111,7 @@ function scene(p) {
   }
 
   // Water bands, glints and the orb's reflection.
-  const bands = [HORIZON, 38, 48, 61, SCENE_H]
+  const bands = [HORIZON, ...D.waterBands, SCENE_H]
   for (let i = 0; i < water.length; i++)
     for (let y = bands[i]; y < bands[i + 1]; y++) for (let x = 0; x < SCENE_W; x++) g[y][x] = water[i]
   const glint = rgb(p.glint)
@@ -124,23 +126,30 @@ function scene(p) {
   // Wooden dock bottom-left.
   const plank = rgb('#7b5a43')
   const gap = rgb('#4e3627')
-  for (let y = 66; y < SCENE_H; y++) for (let x = 0; x < 17 - (y < 68 ? 70 - y : 0); x++) g[y][x] = x % 4 === 3 ? gap : plank
-  for (const px of [2, 13]) for (let y = 62; y < 66; y++) put(g, px, y, gap)
+  const { top, right, posts } = D.dock
+  for (let y = top; y < SCENE_H; y++) for (let x = 0; x < right - (y < top + 2 ? top + 4 - y : 0); x++) g[y][x] = x % 4 === 3 ? gap : plank
+  for (const px of posts) for (let y = top - 4; y < top; y++) put(g, px, y, gap)
 
-  // Fishing rod coming in from the bottom right.
-  line(g, [SCENE_W - 1, SCENE_H - 1], ROD_TIP, rgb('#5d4037'))
-  line(g, [SCENE_W - 1, SCENE_H - 2], [SCENE_W - 6, SCENE_H - 9], rgb('#212121'))
-  disc(g, SCENE_W - 6, SCENE_H - 5, 1, rgb('#9e9e9e'))
+  // Fishing rod coming in from the bottom right, handle and reel near where it enters the screen.
+  const [bx, by] = D.rod.butt
+  line(g, [SCENE_W - 1, SCENE_H - 1], D.rod.tip, rgb('#5d4037'))
+  line(g, [bx, by - 1], [bx - 5, by - 8], rgb('#212121'))
+  disc(g, bx - 5, by - 4, 1, rgb('#9e9e9e'))
   return g
 }
 
 let count = 0
+// Sprites are the same on both screen shapes; only the lake scenes differ.
 const out = (rel, g, scale, bg) => {
-  writePng(path.join(OUT, rel), g, scale, bg)
+  for (const dir of [OUT, OUT_ROUND]) writePng(path.join(dir, rel), g, scale, bg)
   count++
 }
 
-for (const [name, p] of Object.entries(SCENES)) out(`scene/${name}.png`, scene(p), SCENE_SCALE)
+for (const [name, p] of Object.entries(SCENES)) {
+  writePng(path.join(OUT, `scene/${name}.png`), scene(p, SQUARE.scene), SCENE_SCALE)
+  writePng(path.join(OUT_ROUND, `scene/${name}.png`), scene(p, ROUND.scene), SCENE_SCALE)
+  count += 2
+}
 for (const [id, art] of Object.entries(FISH)) {
   out(`fish/${id}.png`, fromArt(art), 6)
   out(`fish/${id}_s.png`, fromArt(art), 4)
@@ -197,7 +206,7 @@ function iconFish() {
     if (r > w / 2) return null
     return r > w / 2 - 10 ? rgb('#154a70') : rgb('#1f6aa0')
   }
-  writePng(path.join(OUT, 'icon.png'), iconFish(), 12, pond)
+  for (const dir of [OUT, OUT_ROUND]) writePng(path.join(dir, 'icon.png'), iconFish(), 12, pond)
   count++
 }
 
@@ -256,7 +265,7 @@ function iconFish() {
 
 // Contact sheet for eyeballing the art (not shipped).
 if (process.argv.includes('--preview')) {
-  const scenes = Object.values(SCENES).map(scene)
+  const scenes = Object.values(SCENES).map((p) => scene(p))
   const W = SCENE_W * 4 + 5
   const fishRows = Math.ceil(Object.keys(FISH).length / 6)
   const g = grid(W, SCENE_H + 2 + fishRows * 12 + 12, rgb('#333333'))

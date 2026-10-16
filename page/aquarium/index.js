@@ -2,13 +2,14 @@ import { createWidget, widget, align, text_style, setStatusBarVisible } from '@z
 import { px } from '@zos/utils'
 import { SPECIES, sizeLabel } from '../../lib/game.js'
 import { load } from '../../lib/store.js'
+import { L } from '../../lib/screen.js'
 
-const W = 390
+const W = L.w
 const COLS = 3
 const CELL_W = 106
 const CELL_H = 116
 const GRID_X = (W - COLS * CELL_W) / 2
-const GRID_Y = 118
+const GRID_Y = L.aquarium.gridY
 const WATER = 0x0b2135
 
 Page({
@@ -16,7 +17,8 @@ Page({
     setStatusBarVisible(false)
     const save = load()
     const rows = Math.ceil(SPECIES.length / COLS)
-    const height = GRID_Y + rows * CELL_H + 40
+    // Round: extra room below so the last row can scroll up into the wide middle of the circle.
+    const height = GRID_Y + rows * CELL_H + L.aquarium.bottom
 
     createWidget(widget.FILL_RECT, { x: 0, y: 0, w: px(W), h: px(height), color: WATER })
 
@@ -27,8 +29,8 @@ Page({
       })
 
     const caught = SPECIES.filter((f) => save.fish[f.id]).length
-    text(0, 44, W, 36, 'Aquarium', 30, 0xffffff)
-    text(0, 80, W, 26, `${caught}/${SPECIES.length} species · ${save.total} caught`, 17, 0x90caf9)
+    text(0, L.aquarium.title, W, 36, 'Aquarium', 30, 0xffffff)
+    text(0, L.aquarium.sub, W, 26, `${caught}/${SPECIES.length} species · ${save.total} caught`, 17, 0x90caf9)
 
     SPECIES.forEach((f, i) => {
       const x = GRID_X + (i % COLS) * CELL_W

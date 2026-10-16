@@ -2,7 +2,7 @@
 
 # FlickFish
 
-A wrist-flick fishing mini game for Zepp OS square watches (Amazfit Active 2 Square, Bip 6, Active, GTS 4, …).
+A wrist-flick fishing mini game for Zepp OS watches, square (Amazfit Active 2 Square, Bip 6, Active, GTS 4, …) and round (Active 2, Balance, GTR 4, T-Rex 3, …).
 
 - **Flick your wrist to cast.** Then wait. Light buzzes are nibbles: flick now and you scare the fish off.
 - **Long buzz = bite!** Turn or press the side button (or flick) within the hook window (shorter for rare fish).
@@ -29,6 +29,8 @@ Store listing texts, privacy statement and asset checklist: `store/listing.md`.
 Run `zeus preview` in a real terminal; its device picker needs arrow keys.
 
 Set `DEBUG_ACCEL = true` in `page/lake/index.js` to show live accelerometer, crown and button-press values while tuning `FLICK_RATIO` in `lib/flick.js` and `CROWN_DEG_PER_UNIT` in the page.
+
+Screen layouts for square (390×450) and round (480×480) watches are in `lib/layout.js`; `npm run sprites` draws a lake scene for each into `assets/default.s/` and `assets/default.r/`, and the pages pick one with `lib/screen.js`.
 
 Game logic lives in `lib/game.js` (pure, no `@zos` imports: a state machine that returns effects such as vibrations), the flick detector in `lib/flick.js`, storage in `lib/store.js`.
 
